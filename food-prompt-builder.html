@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prompt Builder — Food &amp; Beverage Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#17140F;
+    --surface:#201C16;
+    --surface-2:#2A251C;
+    --ink:#F2ECE1;
+    --ink-dim:#C9C0AE;
+    --accent:#C08A3E;
+    --accent-ink:#1A1611;
+    --rust:#8B3A2B;
+    --line:rgba(242,236,225,0.12);
+    --line-strong:rgba(242,236,225,0.22);
+    padding-top: env(safe-area-inset-top,0px);
+    padding-bottom: env(safe-area-inset-bottom,0px);
+    box-sizing:border-box;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Public Sans',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:40px 24px 60px;
+  }
+  header{
+    margin-bottom:36px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:24px;
+  }
+  header h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(28px,4vw,40px);
+    margin:0 0 8px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    color:var(--ink-dim);
+    font-size:15px;
+    max-width:60ch;
+    line-height:1.5;
+  }
+  .layout{
+    display:grid;
+    grid-template-columns:1.15fr 1fr;
+    gap:32px;
+    align-items:start;
+  }
+  @media (max-width:880px){
+    .layout{grid-template-columns:1fr;}
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:24px;
+    margin-bottom:20px;
+  }
+  .card h2{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:17px;
+    margin:0 0 4px;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .card h2 span.idx{
+    font-family:'Public Sans',sans-serif;
+    font-size:12px;
+    color:var(--accent);
+    font-weight:700;
+  }
+  .card .hint{
+    color:var(--ink-dim);
+    font-size:13px;
+    margin:0 0 16px;
+    line-height:1.5;
+  }
+  label.field-label{
+    display:block;
+    font-size:12.5px;
+    color:var(--ink-dim);
+    margin:14px 0 6px;
+    font-weight:500;
+  }
+  label.field-label:first-of-type{margin-top:0;}
+  textarea,input[type=text],select{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line-strong);
+    color:var(--ink);
+    border-radius:3px;
+    padding:11px 12px;
+    font-family:'Public Sans',sans-serif;
+    font-size:14.5px;
+    line-height:1.5;
+    resize:vertical;
+  }
+  textarea:focus,input:focus,select:focus{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+    border-color:var(--accent);
+  }
+  select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink-dim) 50%),linear-gradient(135deg,var(--ink-dim) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px;}
+  .toggle-row{display:flex;gap:8px;margin-bottom:4px;}
+  .toggle-btn{
+    flex:1;
+    background:var(--surface-2);
+    border:1px solid var(--line-strong);
+    color:var(--ink-dim);
+    padding:10px 12px;
+    font-size:13.5px;
+    font-weight:500;
+    border-radius:3px;
+    cursor:pointer;
+    font-family:'Public Sans',sans-serif;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .toggle-btn.active{
+    background:var(--accent);
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    font-weight:700;
+  }
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:520px){.grid-2{grid-template-columns:1fr;}}
+  .checkbox-row{display:flex;align-items:center;gap:8px;margin-top:14px;}
+  .select-min{
+    font-size:12px;
+    padding:8px 10px;
+  }
+  .checkbox-row input{width:16px;height:16px;accent-color:var(--accent);}
+  .checkbox-row label{font-size:13.5px;color:var(--ink-dim);}
+  .sticky-panel{position:sticky;top:16px;}
+  .output-card{
+    background:var(--surface);
+    border:1px solid var(--line-strong);
+    border-radius:4px;
+    padding:22px;
+  }
+  .output-card h2{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:16px;
+    margin:0 0 12px;
+  }
+  #promptOut{
+    width:100%;
+    min-height:230px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink);
+    border-radius:3px;
+    padding:14px;
+    font-family:'Public Sans',sans-serif;
+    font-size:13.5px;
+    line-height:1.6;
+    resize:vertical;
+  }
+  .copy-btn{
+    width:100%;
+    margin-top:12px;
+    background:var(--accent);
+    color:var(--accent-ink);
+    border:none;
+    padding:13px;
+    font-size:14.5px;
+    font-weight:700;
+    border-radius:3px;
+    cursor:pointer;
+    font-family:'Public Sans',sans-serif;
+    transition:filter .15s;
+  }
+  .copy-btn:hover{filter:brightness(1.08);}
+  .copy-btn.copied{background:#5C7A52;color:#F2ECE1;}
+  footer{
+    text-align:center;
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+    color:var(--ink-dim);
+    font-size:12.5px;
+    letter-spacing:0.02em;
+  }
+  footer span{color:var(--accent);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Prompt Builder — Food &amp; Beverage Photography</h1>
+    <p>Susun prompt fotografi makanan &amp; minuman kelas studio internasional. Isi setiap bagian, prompt akhir tersusun otomatis di panel kanan.</p>
+  </header>
+
+  <div class="layout">
+    <div class="left-col">
+
+      <div class="card">
+        <h2><span class="idx">01</span> Deskripsi Utama</h2>
+        <p class="hint">Jelaskan subjek foto: jenis makanan/minuman, penyajian, bahan yang terlihat, dan mood yang diinginkan.</p>
+        <textarea id="desc" rows="4" placeholder="Contoh: Segelas cold brew coffee dengan es batu besar, tetesan embun di gelas, disajikan di atas coaster kayu, terlihat segar dan premium"></textarea>
+        <div class="checkbox-row">
+          <input type="checkbox" id="useRef1" checked>
+          <label for="useRef1">Gunakan Rujukan 1 (foto produk) sebagai acuan produk — akan dipasang di generator AI</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="idx">02</span> Background</h2>
+        <p class="hint">Rujukan 2 dipasang di generator AI. Deskripsikan agar prompt akurat.</p>
+        <div class="toggle-row">
+          <button type="button" class="toggle-btn active" data-bgmode="referensi">Rujukan 2 (Background)</button>
+          <button type="button" class="toggle-btn" data-bgmode="dibuatkan">Dibuatkan</button>
+        </div>
+
+        <div id="bgReferensi">
+          <label class="field-label">Deskripsikan Rujukan 2 (warna, tekstur, suasana)</label>
+          <input type="text" id="refDesc" placeholder="Contoh: meja marmer putih dengan bayangan lembut dari jendela kiri">
+        </div>
+
+        <div id="bgDibuatkan" style="display:none">
+          <label class="field-label">Gaya latar</label>
+          <select id="bgPreset" class="select-min">
+            <optgroup label="Dapur">
+              <option value="cozy home kitchen countertop with warm ambient lighting and kitchen tools softly blurred in the background">Meja Dapur Rumahan</option>
+              <option value="marble kitchen counter with kitchen utensils subtly blurred in the background">Meja Dapur Marmer</option>
+              <option value="professional stainless steel restaurant kitchen counter, softly blurred background">Dapur Profesional</option>
+            </optgroup>
+            <optgroup label="Studio">
+              <option value="clean minimalist white studio backdrop with a soft gradient">Studio Minimalis Putih</option>
+              <option value="dark moody studio backdrop, dramatic and atmospheric">Dark Moody Studio</option>
+              <option value="solid pastel-colored studio backdrop, clean commercial advertising style">Studio Backdrop Pastel</option>
+            </optgroup>
+            <optgroup label="Kafe &amp; Restoran">
+              <option value="rustic wooden cafe table with a warm ambient cafe atmosphere softly blurred in the background">Meja Kafe Kayu</option>
+              <option value="elegant fine-dining restaurant table setting with softly blurred ambient background">Meja Restoran Fine Dining</option>
+            </optgroup>
+            <optgroup label="Alam &amp; Outdoor">
+              <option value="outdoor picnic table setting bathed in natural sunlight">Meja Piknik Outdoor</option>
+              <option value="lush green garden setting with soft natural bokeh">Taman Hijau Alami</option>
+              <option value="outdoor setting bathed in warm golden hour light">Outdoor Golden Hour</option>
+            </optgroup>
+          </select>
+          <input type="text" id="bgNote" class="select-min" placeholder="Catatan tambahan (opsional)" style="margin-top:8px">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="idx">03</span> Pencahayaan &amp; Kamera</h2>
+        <p class="hint">Tentukan arah cahaya, sudut kamera, dan format output akhir.</p>
+        <div class="grid-2">
+          <div>
+            <label class="field-label">Pencahayaan</label>
+            <select id="lighting">
+              <option value="soft, even studio softbox lighting">Softbox Studio (Merata)</option>
+              <option value="soft diffused natural window light">Cahaya Jendela Alami</option>
+              <option value="dramatic backlighting highlighting steam and texture">Backlit Dramatis</option>
+              <option value="high-contrast side lighting in chiaroscuro style">Side Light Chiaroscuro</option>
+              <option value="warm golden hour side lighting">Golden Hour Hangat</option>
+              <option value="even overhead lighting typical of flatlay photography">Overhead Flatlay</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Arah Kamera</label>
+            <select id="camera">
+              <option value="45-degree eye-level camera angle">Eye-Level 45°</option>
+              <option value="top-down flatlay camera angle">Top-Down Flatlay</option>
+              <option value="macro close-up angle emphasizing texture detail">Macro Close-Up</option>
+              <option value="low angle hero shot">Low Angle Hero Shot</option>
+              <option value="straight-on eye-level angle">Straight-On Eye Level</option>
+            </select>
+          </div>
+        </div>
+        <label class="field-label">Output Frame (Rasio)</label>
+        <select id="frame">
+          <option value="1:1 square format">1:1 — Persegi (Instagram)</option>
+          <option value="4:5 portrait editorial format">4:5 — Potret Editorial</option>
+          <option value="16:9 cinematic landscape format">16:9 — Landscape Sinematik</option>
+          <option value="9:16 vertical format">9:16 — Vertikal (Reels/Story)</option>
+          <option value="3:2 classic photography format">3:2 — Klasik Fotografi</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <h2><span class="idx">04</span> Tipografi</h2>
+        <p class="hint">Informasi produk, lalu opsional teks pada gambar bergaya cover majalah/iklan.</p>
+        <label class="field-label">Jenis Produk</label>
+        <input type="text" id="jenisProduk" placeholder="Contoh: Cold Brew Coffee dalam botol kaca">
+        <label class="field-label">Brand</label>
+        <input type="text" id="brand" placeholder="Contoh: Kopi Kenangan">
+        <label class="field-label">Tagline</label>
+        <input type="text" id="tagline" placeholder="Contoh: Segar Setiap Tegukan">
+        <p class="hint" style="margin:10px 0 0;">Field yang diisi otomatis jadi tipografi pada gambar, senada dengan foto utama. Kosong = tidak muncul.</p>
+        <div id="typoFields">
+          <div class="grid-2">
+            <div>
+              <label class="field-label">Gaya Font</label>
+              <select id="typoStyle">
+                <option value="elegant editorial serif">Serif Elegan Editorial</option>
+                <option value="modern minimalist sans-serif">Sans Modern Minimalis</option>
+                <option value="handwritten script">Script Tulisan Tangan</option>
+                <option value="bold display type">Display Bold Tebal</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Posisi</label>
+              <select id="typoPos">
+                <option value="top of the frame">Atas</option>
+                <option value="center of the frame">Tengah</option>
+                <option value="bottom of the frame">Bawah</option>
+                <option value="bottom-right corner">Sudut Kanan Bawah</option>
+              </select>
+            </div>
+          </div>
+          <label class="field-label">Warna teks (opsional)</label>
+          <input type="text" id="typoColor" placeholder="Contoh: putih, emas metalik">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="sticky-panel">
+      <div class="output-card">
+        <h2>05 · Prompt Otomatis</h2>
+        <textarea id="promptOut" readonly></textarea>
+        <button class="copy-btn" id="copyBtn">Salin Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>by <span>heri_euy</span></footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// background mode toggle
+document.querySelectorAll('[data-bgmode]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-bgmode]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const mode = btn.dataset.bgmode;
+    $('bgReferensi').style.display = mode==='referensi' ? 'block' : 'none';
+    $('bgDibuatkan').style.display = mode==='dibuatkan' ? 'block' : 'none';
+    build();
+  });
+});
+
+function activeBgMode(){
+  return document.querySelector('[data-bgmode].active').dataset.bgmode;
+}
+
+function build(){
+  let desc = $('desc').value.trim();
+  if($('useRef1').checked){
+    desc += ' — use reference image 1 as the accurate product reference, preserving its exact shape, texture, and color';
+  }
+
+  let bgFragment;
+  if(activeBgMode()==='referensi'){
+    const refDesc = $('refDesc').value.trim();
+    bgFragment = 'use reference image 2 as the background accurately, preserving its original texture, color tone and lighting' + (refDesc ? ` (${refDesc})` : '');
+  } else {
+    const note = $('bgNote').value.trim();
+    bgFragment = $('bgPreset').selectedOptions[0].value + (note ? `, ${note}` : '');
+  }
+
+  const lighting = $('lighting').selectedOptions[0].value;
+  const camera = $('camera').selectedOptions[0].value;
+  const frame = $('frame').selectedOptions[0].value;
+
+  const jenisProduk = $('jenisProduk').value.trim();
+  const brand = $('brand').value.trim();
+  const tagline = $('tagline').value.trim();
+
+  const typoParts = [];
+  if(tagline) typoParts.push(`the tagline "${tagline}"`);
+  if(brand) typoParts.push(`the brand name "${brand}"`);
+  if(jenisProduk) typoParts.push(`the product label "${jenisProduk}"`);
+
+  let typoFragment = '';
+  if(typoParts.length){
+    const style = $('typoStyle').selectedOptions[0].value;
+    const pos = $('typoPos').selectedOptions[0].value;
+    const color = $('typoColor').value.trim();
+    typoFragment = ` Include ${typoParts.join(' and ')} as on-image typography in ${style} style, placed at the ${pos}${color ? `, in ${color} color` : ''}, designed to harmonize seamlessly with the overall image mood, lighting, and composition, executed with professional, editorial-grade typographic quality.`;
+  }
+
+  const prompt = `${desc}. Background: ${bgFragment}. Lighting: ${lighting}. Camera angle: ${camera}. Framed in ${frame}. Professional commercial food and beverage photography, styled by an award-winning international studio photographer, ultra-detailed, sharp focus, natural and appetizing color grading, photorealistic, 8K resolution, magazine-editorial quality.${typoFragment}`;
+
+  $('promptOut').value = prompt;
+}
+
+['desc','useRef1','refDesc','bgNote','lighting','camera','frame','jenisProduk','brand','tagline','typoStyle','typoPos','typoColor']
+  .forEach(id => $(id).addEventListener('input', build));
+document.querySelectorAll('#bgPreset,#lighting,#camera,#frame,#typoStyle,#typoPos')
+  .forEach(el => el.addEventListener('change', build));
+
+$('copyBtn').addEventListener('click', async ()=>{
+  try{
+    await navigator.clipboard.writeText($('promptOut').value);
+  }catch(e){
+    $('promptOut').select();
+    document.execCommand('copy');
+  }
+  const btn = $('copyBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Tersalin ✓';
+  btn.classList.add('copied');
+  setTimeout(()=>{ btn.textContent = original; btn.classList.remove('copied'); }, 1600);
+});
+
+build();
+</script>
+</body>
+</html>
